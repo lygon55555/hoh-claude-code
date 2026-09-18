@@ -46,7 +46,8 @@ Restart Claude Code. `/hoh` appears in the skill list and the agents are listed 
 To try a local checkout without publishing anything:
 
 ```bash
-claude --plugin-dir /path/to/hoh
+git clone https://github.com/lygon55555/hoh-claude-code.git
+claude --plugin-dir ./hoh-claude-code
 ```
 
 ### Project-local (symlinks)
@@ -98,7 +99,13 @@ PRD quality is the ceiling of the whole loop. Read [prd-writing.md](skills/hoh/r
 /hoh start <task> <path/to/prd.md> [T=3]
 ```
 
-You are asked exactly once: target repositories, branch name, and commit trailers if your project requires them. Every other decision is taken by the loop and written to the log. To continue an interrupted run:
+You are asked exactly once: target repositories, branch name, and commit trailers if your project requires them. Every other decision is taken by the loop and written to the log.
+
+Before iteration 1, `start` runs the gate once on the untouched tree and records everything that already fails in `known_fail:`. That is why the loop does not begin immediately, and it is what keeps a test that was broken before the run from being read as damage the loop did.
+
+A task with nothing to build — a specification, a documentation pass — can set `gate: none` in `hoh/<task>/config.md`. The baseline and per-iteration gates are then skipped and QA alone decides, which means deterministic checking and judgement are back in one place; the loop says so when you choose it.
+
+To continue an interrupted run:
 
 ```
 /hoh resume <task> [T]
@@ -142,6 +149,8 @@ To discard it, delete the branch. Iterations that passed QA are tagged `hoh/<tas
 ## How an iteration runs
 
 ```
+gate-0 = gate.sh(HEAD)                                                      # baseline: what already fails -> known_fail
+
 for t in 1..T:
   plan-t      = Planner(prd, evidence-(t-1), issues, lineage, project.md)   # never sees plan-(t-1)
   if plan-t.status == complete: break

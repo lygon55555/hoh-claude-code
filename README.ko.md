@@ -46,7 +46,8 @@ Claude Code를 재시작한다. 스킬 목록에 `/hoh`가 나타나고, 에이�
 아무것도 퍼블리시하지 않고 로컬 체크아웃만으로 시험해 보려면:
 
 ```bash
-claude --plugin-dir /path/to/hoh
+git clone https://github.com/lygon55555/hoh-claude-code.git
+claude --plugin-dir ./hoh-claude-code
 ```
 
 ### 프로젝트 로컬 (symlink)
@@ -98,7 +99,13 @@ HoH는 워크스페이스에 파일 두 개를 요구한다.
 /hoh start <task> <path/to/prd.md> [T=3]
 ```
 
-질문은 딱 한 번 받는다 — 대상 리포지토리, 브랜치 이름, 그리고 프로젝트가 요구한다면 커밋 트레일러. 그 외 모든 결정은 루프가 내리고 로그에 남긴다. 중단된 런을 이어받으려면:
+질문은 딱 한 번 받는다 — 대상 리포지토리, 브랜치 이름, 그리고 프로젝트가 요구한다면 커밋 트레일러. 그 외 모든 결정은 루프가 내리고 로그에 남긴다.
+
+반복 1을 시작하기 전에 `start`는 손대지 않은 트리에서 게이트를 한 번 돌려, 이미 실패하고 있는 것을 전부 `known_fail:`에 기록한다. 루프가 곧바로 시작하지 않는 이유가 이것이고, 런 이전부터 깨져 있던 테스트가 루프가 낸 피해로 읽히지 않게 막아 주는 장치도 이것이다.
+
+빌드할 것이 없는 작업 — 명세 작성, 문서 정리 — 은 `hoh/<task>/config.md`에 `gate: none`을 둘 수 있다. 그러면 기준선 게이트와 매 반복 게이트를 건너뛰고 QA 혼자 판단하게 되는데, 결정론적 확인과 판단이 다시 한 곳에 모인다는 뜻이다. 이 옵션을 고르면 루프가 그 점을 경고한다.
+
+중단된 런을 이어받으려면:
 
 ```
 /hoh resume <task> [T]
@@ -142,6 +149,8 @@ git commit
 ## 반복 한 번은 이렇게 돈다
 
 ```
+gate-0 = gate.sh(HEAD)                                                      # 기준선: 이미 실패하는 것 -> known_fail
+
 for t in 1..T:
   plan-t      = Planner(prd, evidence-(t-1), issues, lineage, project.md)   # plan-(t-1)은 절대 보지 않는다
   if plan-t.status == complete: break
