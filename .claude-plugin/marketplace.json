@@ -1,0 +1,18 @@
+{
+  "name": "hoh",
+  "description": "Marketplace for the HoH (Harness-of-Harness) Claude Code plugin",
+  "owner": {
+    "name": "Yonghyun Kim"
+  },
+  "plugins": [
+    {
+      "name": "hoh",
+      "description": "Harness-of-Harness for Claude Code: Planner / Developer / QA role agents, a /hoh orchestration loop and a deterministic build-and-test gate.",
+      "version": "0.1.0",
+      "source": "./",
+      "author": {
+        "name": "Yonghyun Kim"
+      }
+    }
+  ]
+}
