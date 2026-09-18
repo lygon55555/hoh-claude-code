@@ -1,6 +1,6 @@
 # HoH — Claude Code를 위한 Harness-of-Harness
 
-Yan et al., *Harness of Harness: Multi-Day Autonomous Software Development with Continual Improvement* ([arXiv:2609.01481](https://arxiv.org/abs/2609.01481))의 Harness-of-Harness 루프를 Claude Code 플러그인으로 구현한 것이다. 역할 에이전트 3종(Planner, Developer, QA), 오케스트레이션 스킬 하나(`/hoh`), 그리고 결정론적인 빌드·테스트 게이트로 구성된다.
+Yan et al., *Harness-of-Harness: Multi-Day Autonomous Software Development with Continual Improvement* ([arXiv:2609.01481](https://arxiv.org/abs/2609.01481))의 Harness-of-Harness 루프를 Claude Code 플러그인으로 구현한 것이다. 역할 에이전트 3종(Planner, Developer, QA), 오케스트레이션 스킬 하나(`/hoh`), 그리고 결정론적인 빌드·테스트 게이트로 구성된다.
 
 특정 프로젝트에 묶이지 않는다. 작은 파일 두 개에 "내 프로젝트를 어떻게 빌드하고 테스트하는지"만 적어 주면 나머지는 루프가 한다.
 
@@ -18,7 +18,7 @@ HoH는 매 반복을 같은 모델의 독립 호출 3개로 쪼갠다.
 | **Developer** | 코드, 커밋 | 태스크 브랜치에 커밋된 코드 변경 — *동결된 후보(frozen candidate)* |
 | **QA** | `evidence-<t>.md`, 로그 | 자기가 직접 관찰한 것에 근거한 주장별 `verified` / `gap` 증거. Developer의 보고서는 절대 보지 않는다 |
 
-반복 사이를 잇는 상태 채널은 둘이다. **코드**(커밋된 산출물)는 다음 Developer로, **증거**는 다음 Planner로 흐른다. 개발 문서는 **넘기지 않는다** — Planner가 매 반복 명세와 최신 증거로부터 새로 쓴다. 논문의 ablation에서 계획 재작성, 증거 피드백, 산출물 웜스타트를 각각 제거하면 벤치마크 점수가 6~8점씩 떨어졌다. 이 루프는 셋 다 유지한다.
+반복 사이를 잇는 상태 채널은 둘이다. **코드**(커밋된 산출물)는 다음 Developer로, **증거**는 다음 Planner로 흐른다. 개발 문서는 **넘기지 않는다** — Planner가 매 반복 명세와 최신 증거로부터 새로 쓴다. 논문의 ablation(GameCraft-Bench, Codex + GPT-5.5)에서 개발 문서를 동결하거나, 실행 증거 없이 재계획하거나, 빈 워크스페이스에서 다시 빌드하면 전체 점수가 각각 8.13점, 6.28점, 7.85점 떨어졌다. 이 루프는 셋 다 유지한다.
 
 Developer와 QA 사이에 게이트가 있다. 동결된 커밋을 빌드하고 테스트하는 셸 스크립트로, **모델이 개입하지 않는다**. 커밋 해시와 결과를 기록해 QA에게 넘기고, QA는 그것만을 신뢰할 수 있는 출발점으로 삼는다. 첫 실전 런에서 QA는 이 게이트를 근거로 Developer가 "완료"라고 보고한 회귀를 잡아냈고, 다음 반복이 그것을 되돌렸다.
 
@@ -187,7 +187,7 @@ install.sh               프로젝트 로컬 설치 (플러그인의 대안)
 
 ## 감사의 말
 
-루프, 역할 분리, 2채널 상태 설계는 Yan et al., *Harness of Harness: Multi-Day Autonomous Software Development with Continual Improvement*, arXiv:2609.01481 (2026)을 따랐다. 이것은 독립 구현이며 저자들과 제휴 관계가 없다.
+루프, 역할 분리, 2채널 상태 설계는 Yan et al., *Harness-of-Harness: Multi-Day Autonomous Software Development with Continual Improvement*, arXiv:2609.01481 (2026)을 따랐다. 이것은 독립 구현이며 저자들과 제휴 관계가 없다.
 
 ## 라이선스
 

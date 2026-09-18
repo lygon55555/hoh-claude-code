@@ -1,6 +1,6 @@
 # HoH — Harness-of-Harness for Claude Code
 
-An implementation of the Harness-of-Harness loop from Yan et al., *Harness of Harness: Multi-Day Autonomous Software Development with Continual Improvement* ([arXiv:2609.01481](https://arxiv.org/abs/2609.01481)), packaged as a Claude Code plugin: three role agents (Planner, Developer, QA), one orchestrating skill (`/hoh`) and a deterministic build-and-test gate.
+An implementation of the Harness-of-Harness loop from Yan et al., *Harness-of-Harness: Multi-Day Autonomous Software Development with Continual Improvement* ([arXiv:2609.01481](https://arxiv.org/abs/2609.01481)), packaged as a Claude Code plugin: three role agents (Planner, Developer, QA), one orchestrating skill (`/hoh`) and a deterministic build-and-test gate.
 
 It is project-neutral. You describe how to build and test your project in two small files; the loop does the rest.
 
@@ -18,7 +18,7 @@ HoH splits every iteration into three independent invocations of the same model:
 | **Developer** | Code, commits | Code changes committed on the task branch — the *frozen candidate* |
 | **QA** | `evidence-<t>.md`, logs | Per-claim `verified` / `gap` evidence from its own observations. It never sees the Developer's report |
 
-Two state channels connect iterations: code (the committed artifact) flows to the next Developer, evidence flows to the next Planner. The development document is **not** carried over — the Planner rewrites it every iteration from the specification and the latest evidence. In the paper's ablation, removing plan rewriting, evidence feedback or artifact warm-start each cost 6–8 points on their benchmark; this loop keeps all three.
+Two state channels connect iterations: code (the committed artifact) flows to the next Developer, evidence flows to the next Planner. The development document is **not** carried over — the Planner rewrites it every iteration from the specification and the latest evidence. In the paper's ablation (GameCraft-Bench, Codex with GPT-5.5), freezing the development document, replanning without execution evidence and rebuilding from an empty workspace cost 8.13, 6.28 and 7.85 points of the overall score respectively; this loop keeps all three.
 
 Between Developer and QA sits the gate: a shell script that builds and tests the frozen commit with no model involved, records the commit hash and the results, and hands them to QA as the only trusted starting point. In our first real run, QA used it to catch a regression the Developer had reported as complete, and the next iteration reverted it.
 
@@ -187,7 +187,7 @@ install.sh               project-local install (alternative to the plugin)
 
 ## Acknowledgements
 
-The loop, the role split and the two-channel state design follow Yan et al., *Harness of Harness: Multi-Day Autonomous Software Development with Continual Improvement*, arXiv:2609.01481 (2026). This is an independent implementation and is not affiliated with the authors.
+The loop, the role split and the two-channel state design follow Yan et al., *Harness-of-Harness: Multi-Day Autonomous Software Development with Continual Improvement*, arXiv:2609.01481 (2026). This is an independent implementation and is not affiliated with the authors.
 
 ## License
 
