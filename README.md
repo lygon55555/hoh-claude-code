@@ -4,6 +4,8 @@ An implementation of the Harness-of-Harness loop from Yan et al., *Harness of Ha
 
 It is project-neutral. You describe how to build and test your project in two small files; the loop does the rest.
 
+> 한국어: [README.ko.md](README.ko.md)
+
 ## Why
 
 Hand an agent a feature and the first pass looks fine. Say "keep going" a few times and it starts re-fixing the same spot, breaking things that used to work, and reporting unfinished work as done — because the party that implemented the change is also the one judging whether it is complete.

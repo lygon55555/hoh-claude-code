@@ -20,7 +20,7 @@ HoH is a Claude Code plugin implementing the Harness-of-Harness loop (Yan et al.
 
 ## Conventions
 
-- Everything user-facing is in English. `README.md` is the only top-level document; do not generate HTML or duplicate docs.
+- Everything user-facing is in English. `README.md` is canonical; `README.ko.md` is its Korean translation and the only exception — change it in the same commit whenever `README.md` changes, or leave it alone. Add no further top-level documents, no other languages, and no HTML.
 - The agent files and `SKILL.md` are prompts with fixed identifier formats (`T<t>-<n>`, `P<t>-<n>`, `V<t>-<n>`, `I<n>`, `G<t>-<n>`, `S-<id>`) and a fixed file layout under `hoh/<task>/`. A change in one file usually needs a matching change in the others — grep for the identifier or field before editing.
 - `gate.sh` must stay POSIX-shell portable (macOS BSD tools and GNU coreutils; note the `stat`/`date` fallbacks) and must never call a model.
 - Profiles must not block on anything interactive (watch modes, prompts, pagers).
