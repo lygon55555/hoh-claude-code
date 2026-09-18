@@ -15,7 +15,9 @@ hoh_test() {
 
 hoh_test_summary() {
   local ok fail
-  ok=$(grep -c '^ok  ' "$HOH_LOGS/test-$HOH_T.log")
-  fail=$(grep -c '^FAIL' "$HOH_LOGS/test-$HOH_T.log")
+  ok=$(grep -cE '^ok[[:space:]]' "$HOH_LOGS/test-$HOH_T.log")
+  # Anchor on the package line: a failing test binary also prints a bare "FAIL",
+  # which would count every failing package twice.
+  fail=$(grep -cE '^FAIL[[:space:]]' "$HOH_LOGS/test-$HOH_T.log")
   echo "packages ok $ok / FAIL $fail"
 }

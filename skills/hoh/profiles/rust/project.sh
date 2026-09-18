@@ -14,8 +14,17 @@ hoh_test() {
 }
 
 hoh_test_summary() {
-  # "test result: ok. 41 passed; 1 failed; 0 ignored"
-  grep -Eo "test result:.*" "$HOH_LOGS/test-$HOH_T.log" | tail -1
+  # "test result: ok. 41 passed; 1 failed; 0 ignored" — cargo prints one such line
+  # per test binary plus one for doc-tests, so sum them. Taking the last line
+  # would report a green total while an earlier binary had failures.
+  awk '/^test result:/ {
+         seen = 1
+         for (i = 1; i < NF; i++) {
+           if ($(i+1) ~ /^passed/) p += $i
+           if ($(i+1) ~ /^failed/) f += $i
+         }
+       }
+       END { if (seen) printf "%d passed, %d failed", p, f }' "$HOH_LOGS/test-$HOH_T.log"
 }
 
 hoh_artifacts() {
