@@ -77,7 +77,7 @@ HoH는 워크스페이스에 파일 두 개를 요구한다.
 
 프로파일: `generic`, `node`, `python`, `go`, `rust`, `xcode`. `generic`을 뺀 나머지는 해당 스택의 기본값을 가정한 **출발점**이다 — 명령이 내 프로젝트에 맞는지 확인해라. `/hoh init`을 다시 실행하면 셀프체크 게이트가 돌고, 두 파일이 제대로 동작하면 `build: ok`가 나온다.
 
-`hoh/project.sh`와 `hoh/project.md`는 리포에 커밋할 파일이다. `hoh/<task>/` 아래의 런 상태는 아니다 — `/hoh init`이 `.gitignore`에 `hoh/*/`를 추가한다.
+`hoh/project.sh`와 `hoh/project.md`는 **git이 추적하고 있어야 한다** — untracked 상태면 런이 시작을 거부한다. QA가 clean한 트리를 검사하기 때문이다. 커밋해라. 리포에 남기고 싶지 않다면 `.git/info/exclude`에 적어라. `hoh/<task>/` 아래의 런 상태는 반대다 — `/hoh init`이 `.gitignore`에 `hoh/*/`를 추가한다.
 
 전체 계약과 함정(watch 모드, pager, 게이트를 멈춰 세우는 프롬프트)은 [skills/hoh/references/setup.md](skills/hoh/references/setup.md)에 있다.
 
@@ -114,6 +114,8 @@ HoH는 워크스페이스에 파일 두 개를 요구한다.
 | `issues.md` | 누적 원장. **진척은 `qa_status`가 아니라 여기의 open/closed 추세다** |
 | `evidence-<t>.md` | QA가 무엇을 어떻게 관찰했고, 어떤 주장이 갭인지 |
 | `plan-<t>.md` | 그 반복이 무엇을 하려 했고 왜 그랬는지 |
+| `gate-<t>.md` | 게이트 자신의 기록: 후보 커밋, `build:`, `tests:`, 그리고 로그 경로 |
+| `logs/build-<t>.log`, `logs/test-<t>.log` | **빌드나 테스트가 왜 실패했는지.** 루프가 반복을 롤백했으면 여기서 시작해라 |
 | `lineage.md` | 반복별 커밋, usable/unusable, verified 태그 |
 
 **QA가 `fail`을 돌려주는 것은 정상이다.** 수동 확인만 가능한 항목 하나만 있어도 `pass`가 막힌다. 대신 원장이 줄어드는지를 봐라.
@@ -145,7 +147,8 @@ for t in 1..T:
   if plan-t.status == complete: break
   candidate-t = Developer(prd, plan-t, project.md)                          # 커밋한다; 트리는 clean이어야 한다
   gate-t      = gate.sh(candidate-t)                                        # 빌드 + 테스트, 모델 없음
-  evidence-t  = QA(prd, plan-t, gate-t, candidate-t)                        # Developer의 보고서는 절대 보지 않는다
+  if gate-t.build == fail: evidence-t = 빌드 실패 스텁                       # QA는 아예 호출되지 않는다
+  else: evidence-t = QA(prd, plan-t, gate-t, candidate-t)                   # Developer의 보고서는 절대 보지 않는다
 
   빌드 실패      -> 마지막 usable 커밋으로 리셋
   qa_status pass -> hoh/<task>/verified-t 태그

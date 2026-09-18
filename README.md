@@ -77,7 +77,7 @@ Create them from a profile, then edit:
 
 Profiles: `generic`, `node`, `python`, `go`, `rust`, `xcode`. All but `generic` are starting points that assume the stack's defaults — check the commands against your project. Running `/hoh init` again performs a self-check gate and reports `build: ok` when the two files work.
 
-`hoh/project.sh` and `hoh/project.md` belong in your repository. Run state under `hoh/<task>/` does not; `/hoh init` adds `hoh/*/` to `.gitignore`.
+`hoh/project.sh` and `hoh/project.md` must be tracked by git — a run refuses to start while they are untracked, because QA inspects a clean tree. Commit them, or list them in `.git/info/exclude` if they must stay out of the repository. Run state under `hoh/<task>/` is the opposite: `/hoh init` adds `hoh/*/` to `.gitignore`.
 
 The full contract and the pitfalls (watch modes, pagers, prompts that hang the gate): [skills/hoh/references/setup.md](skills/hoh/references/setup.md).
 
@@ -114,6 +114,8 @@ Everything lands in `hoh/<task>/`:
 | `issues.md` | Persistent ledger. **Progress is the open/closed trend here**, not `qa_status` |
 | `evidence-<t>.md` | What QA observed, how, and which claims are gaps |
 | `plan-<t>.md` | What the iteration set out to do and why |
+| `gate-<t>.md` | The gate's own record: candidate commit, `build:`, `tests:`, and the log paths |
+| `logs/build-<t>.log`, `logs/test-<t>.log` | **Why a build or test failed.** Start here when the loop rolls an iteration back |
 | `lineage.md` | Commit per iteration, usable/unusable, verified tags |
 
 **QA returning `fail` is normal.** A single manual-only item is enough to prevent `pass`. Watch the ledger shrink instead.
@@ -145,7 +147,8 @@ for t in 1..T:
   if plan-t.status == complete: break
   candidate-t = Developer(prd, plan-t, project.md)                          # commits; tree must be clean
   gate-t      = gate.sh(candidate-t)                                        # build + test, no model
-  evidence-t  = QA(prd, plan-t, gate-t, candidate-t)                        # never sees the Developer's report
+  if gate-t.build == fail: evidence-t = build-failure stub                  # QA is not invoked at all
+  else: evidence-t = QA(prd, plan-t, gate-t, candidate-t)                   # never sees the Developer's report
 
   build failed  -> reset to the last usable commit
   qa_status pass -> tag hoh/<task>/verified-t
