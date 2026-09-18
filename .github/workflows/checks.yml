@@ -1,0 +1,90 @@
+name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  checks:
+    # Also the only place the gate runs on Linux; development happens on macOS.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Shell syntax
+        run: bash -n skills/hoh/scripts/gate.sh skills/hoh/profiles/*/project.sh install.sh
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Validate manifests and components
+        run: |
+          claude plugin validate .
+          claude plugin validate .claude-plugin/plugin.json
+          claude plugin validate skills
+          claude plugin validate agents
+
+      - name: Manifest versions match
+        run: |
+          plugin=$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' .claude-plugin/plugin.json | head -1)
+          market=$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' .claude-plugin/marketplace.json | head -1)
+          echo "plugin.json=$plugin marketplace.json=$market"
+          test "$plugin" = "$market"
+
+      - name: Gate smoke test
+        run: |
+          set -eux
+          work=$(mktemp -d)
+          cd "$work"
+          git init -q -b main .
+          git config user.email ci@example.com
+          git config user.name ci
+          mkdir hoh
+          cat > hoh/project.sh <<'PROFILE'
+          HOH_REPOS_DEFAULT="."
+          hoh_build() { true; }
+          hoh_test() { printf '\033[32m1 passed\033[0m\tin 0.01s\n'; }
+          hoh_test_summary() { grep -Eo "[0-9]+ passed.*" "$HOH_LOGS/test-$HOH_T.log" | tail -1; }
+          PROFILE
+          printf 'hoh/*/\n' > .gitignore
+          git add -A
+          git commit -qm init
+          mkdir -p hoh/t
+          printf 'task: t\n' > hoh/t/config.md
+          bash "$GITHUB_WORKSPACE/skills/hoh/scripts/gate.sh" t 0
+          cat hoh/t/gate-0.md
+          # The summary must be one line with no escape sequences, and the gate
+          # must see a clean tree.
+          grep -qx 'tests: 1 passed in 0.01s' hoh/t/gate-0.md
+          grep -qx 'build: ok' hoh/t/gate-0.md
+          grep -qx 'candidate_dirty: no' hoh/t/gate-0.md
+
+      - name: Gate reports a failing build
+        run: |
+          set -eux
+          work=$(mktemp -d)
+          cd "$work"
+          git init -q -b main .
+          git config user.email ci@example.com
+          git config user.name ci
+          mkdir hoh
+          printf 'HOH_REPOS_DEFAULT="."\nhoh_build() { echo boom; return 1; }\nhoh_test() { true; }\n' > hoh/project.sh
+          printf 'hoh/*/\n' > .gitignore
+          git add -A
+          git commit -qm init
+          mkdir -p hoh/t
+          printf 'task: t\n' > hoh/t/config.md
+          # A failing build must exit non-zero, skip the tests and still write the report.
+          if bash "$GITHUB_WORKSPACE/skills/hoh/scripts/gate.sh" t 0; then
+            echo "gate.sh exited 0 on a failing build" >&2
+            exit 1
+          fi
+          grep -qx 'build: fail' hoh/t/gate-0.md
+          grep -qx 'tests_status: skipped' hoh/t/gate-0.md
+          test ! -f hoh/t/logs/test-0.log

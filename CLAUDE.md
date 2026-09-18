@@ -45,6 +45,8 @@ mkdir -p hoh/t && printf 'task: t\n' > hoh/t/config.md
 bash <repo>/skills/hoh/scripts/gate.sh t 0 && cat hoh/t/gate-0.md      # expect build: ok, tests: 1 passed, candidate_dirty: no
 ```
 
+`.github/workflows/checks.yml` runs all of the above on every push and pull request, plus a build-failure variant of the smoke test, on Linux — the one place the gate is exercised off macOS. Keep the workflow in step when you change the commands here.
+
 Load the plugin in a real session without installing it: `claude --plugin-dir <repo>` from any workspace, then `/hoh`. The skill is user-invocable only (`disable-model-invocation: true`), so the model will not list it among auto-invocable skills — that is expected.
 
 ## Releasing
