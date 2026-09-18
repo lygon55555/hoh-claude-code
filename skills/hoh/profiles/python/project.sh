@@ -9,10 +9,14 @@ hoh_build() {
   [ -d "$VENV" ] || python3 -m venv "$VENV" || return 1
   # shellcheck source=/dev/null
   . "$VENV/bin/activate"
+  # Both, when both exist: a project with a pyproject.toml still keeps its test
+  # dependencies in requirements.txt more often than not, and skipping them makes
+  # the gate report a healthy tree as a test failure.
+  if [ -f requirements.txt ]; then
+    pip install -q -r requirements.txt || return 1
+  fi
   if [ -f pyproject.toml ] || [ -f setup.py ]; then
     pip install -q -e . || return 1
-  elif [ -f requirements.txt ]; then
-    pip install -q -r requirements.txt || return 1
   fi
   # Type checking counts as part of the build when mypy is installed. Remove if unwanted.
   if python -c "import mypy" 2>/dev/null; then
