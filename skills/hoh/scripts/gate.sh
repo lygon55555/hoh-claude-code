@@ -67,6 +67,14 @@ if [ "$BUILD_OK" = ok ]; then
   hoh_test > "$LOGS/test-$T.log" 2>&1 && TESTS_OK=ok || TESTS_OK=fail
   if declare -F hoh_test_summary > /dev/null; then
     SUMMARY=$(hoh_test_summary 2>/dev/null)
+    # `tests:` is a single-line header field that QA and the Planner read, but
+    # test runners colour their output even when stdout is not a terminal, and a
+    # summary function may return more than one line. Strip escape sequences,
+    # then flatten to one line.
+    ESC=$(printf '\033')
+    SUMMARY=$(printf '%s' "$SUMMARY" \
+      | LC_ALL=C sed -e "s/${ESC}\[[0-9;:<=>?]*[ -/]*[@-~]//g" -e "s/${ESC}[@-_]//g" \
+      | tr -d '\r' | tr '\n\t' '  ' | sed -e 's/  */ /g' -e 's/^ //' -e 's/ $//')
     SUMMARY=${SUMMARY:-n/a}
   fi
 fi
