@@ -3,7 +3,8 @@
   "description": "Harness-of-Harness for Claude Code: Planner / Developer / QA role agents, a /hoh orchestration loop and a deterministic build-and-test gate. Project-neutral.",
   "version": "0.1.0",
   "author": {
-    "name": "Yonghyun Kim"
+    "name": "Yonghyun Kim",
+    "email": "lygon55555@gmail.com"
   },
   "homepage": "https://github.com/lygon55555/hoh-claude-code",
   "repository": "https://github.com/lygon55555/hoh-claude-code",
