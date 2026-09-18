@@ -11,12 +11,12 @@ jobs:
     # Also the only place the gate runs on Linux; development happens on macOS.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Shell syntax
         run: bash -n skills/hoh/scripts/gate.sh skills/hoh/profiles/*/project.sh install.sh
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: '22'
 

@@ -8,7 +8,7 @@
     {
       "name": "hoh",
       "description": "Harness-of-Harness for Claude Code: Planner / Developer / QA role agents, a /hoh orchestration loop and a deterministic build-and-test gate.",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "source": "./",
       "author": {
         "name": "Yonghyun Kim",
