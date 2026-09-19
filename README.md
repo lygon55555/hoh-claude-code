@@ -174,6 +174,7 @@ skills/hoh/SKILL.md      the /hoh orchestrator
 skills/hoh/scripts/      gate.sh
 skills/hoh/profiles/     generic, node, python, go, rust, xcode
 skills/hoh/references/   setup.md, prd-writing.md
+examples/notes-cli/      one complete run (T=3), unedited
 install.sh               project-local install (alternative to the plugin)
 ```
 

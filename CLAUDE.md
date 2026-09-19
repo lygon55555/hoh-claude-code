@@ -16,6 +16,7 @@ HoH is a Claude Code plugin implementing the Harness-of-Harness loop (Yan et al.
 | `skills/hoh/scripts/gate.sh` | The gate. Sources the workspace's `hoh/project.sh`; no model involved. |
 | `skills/hoh/profiles/<name>/` | Starting points for `hoh/project.sh` (and `project.md` for `generic`). |
 | `skills/hoh/references/` | `setup.md` (attach to a project), `prd-writing.md`. |
+| `examples/notes-cli/` | One real run's documents, sanitised only for absolute paths. Not shipped by the plugin. |
 | `install.sh` | Project-local symlink install, the alternative to the plugin. |
 
 ## Conventions

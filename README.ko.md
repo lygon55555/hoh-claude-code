@@ -174,6 +174,7 @@ skills/hoh/SKILL.md      /hoh 오케스트레이터
 skills/hoh/scripts/      gate.sh
 skills/hoh/profiles/     generic, node, python, go, rust, xcode
 skills/hoh/references/   setup.md, prd-writing.md
+examples/notes-cli/      실제 런 1건 (T=3), 손대지 않은 원본
 install.sh               프로젝트 로컬 설치 (플러그인의 대안)
 ```
 
